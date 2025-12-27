@@ -1,13 +1,13 @@
-import { UserRole } from '../../users/entities/user.entity';
+import { RolUsuario } from '../../usuarios/entities/usuario.entity';
 
 export interface JwtPayload {
   sub: number;
   usuario: string;
-  rol: UserRole;
+  rol: RolUsuario;
 }
 
-export interface RequestUser {
+export interface UsuarioRequest {
   userId: number;
   usuario: string;
-  rol: UserRole;
+  rol: RolUsuario;
 }

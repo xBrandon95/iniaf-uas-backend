@@ -3,7 +3,10 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../services/auth.service';
-import { JwtPayload, RequestUser } from '../interfaces/jwt-payload.interface';
+import {
+  JwtPayload,
+  UsuarioRequest,
+} from '../interfaces/jwt-payload.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -26,14 +29,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<RequestUser> {
-    const user = await this.authService.validateUser(payload.sub);
+  async validate(payload: JwtPayload): Promise<UsuarioRequest> {
+    const usuario = await this.authService.validarUsuario(payload.sub);
 
-    if (!user) {
+    if (!usuario) {
       throw new UnauthorizedException('Usuario no encontrado');
     }
 
-    if (!user.activo) {
+    if (!usuario.activo) {
       throw new UnauthorizedException('Usuario inactivo');
     }
 

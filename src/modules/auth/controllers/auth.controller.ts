@@ -3,7 +3,7 @@ import { AuthService } from '../services/auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { CurrentUser } from '../decorators/current-user.decorator';
-import { type RequestUser } from '../interfaces/jwt-payload.interface';
+import { type UsuarioRequest } from '../interfaces/jwt-payload.interface';
 
 @Controller('auth')
 export class AuthController {
@@ -16,7 +16,7 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@CurrentUser() user: RequestUser) {
+  getProfile(@CurrentUser() user: UsuarioRequest) {
     return {
       message: 'Perfil del usuario',
       user,

@@ -1,15 +1,20 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UserRole } from '../../users/entities/user.entity';
+import { RolUsuario } from '../../usuarios/entities/usuario.entity';
 import { ROLES_KEY } from '../decorators/roles.decorator';
-import { RequestUser } from '../interfaces/jwt-payload.interface';
+import { UsuarioRequest } from '../interfaces/jwt-payload.interface';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredRoles = this.reflector.getAllAndOverride<UserRole[]>(
+    const requiredRoles = this.reflector.getAllAndOverride<RolUsuario[]>(
       ROLES_KEY,
       [context.getHandler(), context.getClass()],
     );
@@ -18,7 +23,19 @@ export class RolesGuard implements CanActivate {
       return true;
     }
 
-    const { user }: { user: RequestUser } = context.switchToHttp().getRequest();
-    return requiredRoles.some((role) => user.rol === role);
+    const { user }: { user: UsuarioRequest } = context
+      .switchToHttp()
+      .getRequest();
+
+    const tienePermiso = requiredRoles.some((role) => user.rol === role);
+
+    if (!tienePermiso) {
+      const rolesRequeridos = requiredRoles.join(', ');
+      throw new ForbiddenException(
+        `No tienes permisos suficientes. Se requiere uno de los siguientes roles: ${rolesRequeridos}. Tu rol actual es: ${user.rol}`,
+      );
+    }
+
+    return true;
   }
 }

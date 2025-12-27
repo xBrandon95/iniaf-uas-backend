@@ -1,50 +1,52 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../../users/services/users.service';
+import { UsuariosService } from '../../usuarios/services/usuarios.service';
 import { LoginDto } from '../dto/login.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
+    private usuariosService: UsuariosService,
     private jwtService: JwtService,
   ) {}
 
   async login(loginDto: LoginDto) {
-    const user = await this.usersService.findByUsername(loginDto.usuario);
+    const usuario = await this.usuariosService.obtenerPorNombreUsuario(
+      loginDto.usuario,
+    );
 
-    if (!user) {
+    if (!usuario) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    if (!user.activo) {
+    if (!usuario.activo) {
       throw new UnauthorizedException('Usuario inactivo');
     }
 
-    const isPasswordValid = await user.validatePassword(loginDto.password);
+    const esPasswordValido = await usuario.validatePassword(loginDto.password);
 
-    if (!isPasswordValid) {
+    if (!esPasswordValido) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
     const payload = {
-      sub: user.id,
-      usuario: user.usuario,
-      rol: user.rol,
+      sub: usuario.id,
+      usuario: usuario.usuario,
+      rol: usuario.rol,
     };
 
     return {
       access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        nombre: user.nombre,
-        usuario: user.usuario,
-        rol: user.rol,
+      usuario: {
+        id: usuario.id,
+        nombre: usuario.nombre,
+        usuario: usuario.usuario,
+        rol: usuario.rol,
       },
     };
   }
 
-  async validateUser(userId: number) {
-    return await this.usersService.findOne(userId);
+  async validarUsuario(userId: number) {
+    return await this.usuariosService.obtenerPorId(userId);
   }
 }
