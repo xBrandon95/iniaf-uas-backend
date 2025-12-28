@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   ParseIntPipe,
+  Query,
 } from '@nestjs/common';
 import { UsuariosService } from '../services/usuarios.service';
 import { CrearUsuarioDto } from '../dto/crear-usuario.dto';
@@ -38,7 +39,10 @@ export class UsuariosController {
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(RolUsuario.ADMIN, RolUsuario.SUPERVISOR)
-  obtenerTodos() {
+  obtenerTodos(@Query('unidadId', ParseIntPipe) unidadId?: number) {
+    if (unidadId) {
+      return this.usuariosService.obtenerPorUnidad(unidadId);
+    }
     return this.usuariosService.obtenerTodos();
   }
 

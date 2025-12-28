@@ -6,6 +6,8 @@ import {
   MaxLength,
   IsOptional,
   IsBoolean,
+  IsNumber,
+  ValidateIf,
 } from 'class-validator';
 import { RolUsuario } from '../entities/usuario.entity';
 
@@ -31,6 +33,13 @@ export class CrearUsuarioDto {
   })
   @IsOptional()
   rol?: RolUsuario;
+
+  @ValidateIf((o: CrearUsuarioDto) => o.rol !== RolUsuario.ADMIN)
+  @IsNumber({}, { message: 'El ID de unidad debe ser un número' })
+  @IsNotEmpty({
+    message: 'El ID de unidad es obligatorio para roles que no sean admin',
+  })
+  unidadId?: number;
 
   @IsBoolean()
   @IsOptional()

@@ -6,8 +6,11 @@ import {
   UpdateDateColumn,
   BeforeInsert,
   BeforeUpdate,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Unidad } from '../../unidades/entities/unidad.entity';
 
 export enum RolUsuario {
   ADMIN = 'admin',
@@ -36,6 +39,13 @@ export class Usuario {
   })
   rol: RolUsuario;
 
+  @Column({ nullable: true })
+  unidadId: number;
+
+  @ManyToOne(() => Unidad, (unidad) => unidad.usuarios, { eager: true })
+  @JoinColumn({ name: 'unidadId' })
+  unidad: Unidad;
+
   @Column({ default: true })
   activo: boolean;
 
@@ -45,7 +55,6 @@ export class Usuario {
   @UpdateDateColumn()
   actualizadoEn: Date;
 
-  // Método para encriptar la contraseña antes de insertar
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
@@ -55,7 +64,6 @@ export class Usuario {
     }
   }
 
-  // Método para validar contraseña
   async validatePassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password);
   }
